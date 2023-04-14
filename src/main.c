@@ -29,13 +29,17 @@ int main() {
 		1, 2, 3
 	};
 
-	Shape model = create_model(vertices, sizeof(vertices), indices, sizeof(indices)/sizeof(u32));
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float)*6, (void *)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float)*6, (void *)(sizeof(float)*3));
-	glEnableVertexAttribArray(1);
+	BufferSchema schema = {
+		.num = 2,
+		.attributes = (Attribute[]){
+			{ GL_FLOAT, 3, true },
+			{ GL_FLOAT, 3, true }
+		}
+	};
 
-	glBindVertexArray(0);
+	Shape model = create_model(vertices, sizeof(vertices), indices, sizeof(indices)/sizeof(u32));
+	apply_buffer_schema(schema);
+	glBindVertexArray(0); // unbind VAO
 
 	// i32 added_color_location = glGetUniformLocation(shader_program, "added_color");
 	while (!glfwWindowShouldClose(window)) {
@@ -43,12 +47,9 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glUseProgram(shader_program);
-
 		draw_model(model);
 
-		glBindVertexArray(0);
-		glfwSwapBuffers(window);
-		glfwPollEvents();
+		ngin_end_frame(window);
 	}
 
 	glDeleteShader(vertex_shader);

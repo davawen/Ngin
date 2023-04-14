@@ -14,7 +14,7 @@ typedef struct {
 
 /// Creates a shape with a vertex buffer, index buffer and array object  
 /// 
-/// You need to set the shape of the input vertex array after this call with `glVertexAttribPointer`
+/// You need to set the shape of the vertex array after this using `BufferSchema`
 Shape create_model(void *vertices, u32 vertices_size, u32 *indices, u32 num_indices);
 
 /// Draws the given model

@@ -4,6 +4,11 @@ static void default_framebuffer_resize(GLFWwindow *window, int width, int height
 	glViewport(0, 0, width, height);
 }
 
+void ngin_end_frame(GLFWwindow *window) {
+	glfwSwapBuffers(window);
+	glfwPollEvents();
+}
+
 GLFWwindow *ngin_init(i32 window_width, i32 window_height) {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
