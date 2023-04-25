@@ -1,26 +1,26 @@
 #include "model.h"
 
-Shape create_model(void *vertices, u32 vertices_size, u32 *indices, u32 num_indices) {
-	Shape model;
-	glGenBuffers(1, &model.vertex_buffer);
-	model.vertices_size = vertices_size;
+Mesh create_mesh(void *vertices, u32 vertices_size, u32 *indices, u32 num_indices) {
+	Mesh mesh;
+	glGenBuffers(1, &mesh.vertex_buffer);
+	mesh.vertices_size = vertices_size;
 
-	glGenBuffers(1, &model.index_buffer);
-	model.num_indices = num_indices;
+	glGenBuffers(1, &mesh.index_buffer);
+	mesh.num_indices = num_indices;
 
-	glGenVertexArrays(1, &model.vertex_array);
+	glGenVertexArrays(1, &mesh.vertex_array);
 
-	glBindVertexArray(model.vertex_array);
-	glBindBuffer(GL_ARRAY_BUFFER, model.vertex_buffer);
+	glBindVertexArray(mesh.vertex_array);
+	glBindBuffer(GL_ARRAY_BUFFER, mesh.vertex_buffer);
 	glBufferData(GL_ARRAY_BUFFER, vertices_size, vertices, GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model.index_buffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.index_buffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, num_indices * sizeof(u32), indices, GL_STATIC_DRAW);
 
-	return model;
+	return mesh;
 }
 
-void draw_model(Shape model) {
-	glBindVertexArray(model.vertex_array);
-	glDrawElements(GL_TRIANGLES, model.num_indices, GL_UNSIGNED_INT, NULL);
+void draw_mesh(Mesh mesh) {
+	glBindVertexArray(mesh.vertex_array);
+	glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_INT, NULL);
 }

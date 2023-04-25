@@ -5,6 +5,8 @@
 #include <GL/gl.h>
 #include <GLFW/glfw3.h>
 
+#include <cglm/cglm.h>
+
 #include "ngin.h"
 
 int main() {
@@ -19,27 +21,58 @@ int main() {
 	u32 shader_program = create_linked_shader_program(vertex_shader, fragment_shader);
 
 	f32 vertices[] = {
-		 0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 0.0f,
-		 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f,
-		-0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f
+		 0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+		 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+		-0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f
 	};
+
 	u32 indices[] = {
 		0, 1, 3,
 		1, 2, 3
 	};
 
 	BufferSchema schema = {
-		.num = 2,
+		.num = 3,
 		.attributes = (Attribute[]){
 			{ GL_FLOAT, 3, true },
-			{ GL_FLOAT, 3, true }
+			{ GL_FLOAT, 3, true },
+			{ GL_FLOAT, 2, true }
 		}
 	};
 
-	Shape model = create_model(vertices, sizeof(vertices), indices, sizeof(indices)/sizeof(u32));
+	Mesh model = create_mesh(vertices, sizeof(vertices), indices, sizeof(indices)/sizeof(u32));
 	apply_buffer_schema(schema);
 	glBindVertexArray(0); // unbind VAO
+
+	stbi_set_flip_vertically_on_load(true);
+	int width, height, channels;
+	u8 *texture_data = stbi_load("assets/image.png", &width, &height, &channels, 3);
+	if (!texture_data) {
+		LOG("error: couldn't load image\n");
+		return -1;
+	}
+
+	u32 texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, texture_data);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	stbi_image_free(texture_data);
+
+	glUseProgram(shader_program);
+	glUniform1i(glGetUniformLocation(shader_program, "tex"), 0);
+
+	u32 transformLocation = glGetUniformLocation(shader_program, "transform");
 
 	// i32 added_color_location = glGetUniformLocation(shader_program, "added_color");
 	while (!glfwWindowShouldClose(window)) {
@@ -47,7 +80,14 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glUseProgram(shader_program);
-		draw_model(model);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture);
+
+		mat4 transform = GLM_MAT4_IDENTITY_INIT;
+		glm_rotate(transform, glfwGetTime(), (vec3){0, 0, 1});
+
+		glUniformMatrix4fv(transformLocation, 1, GL_FALSE, (float *)transform);
+		draw_mesh(model);
 
 		ngin_end_frame(window);
 	}

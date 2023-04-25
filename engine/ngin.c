@@ -4,11 +4,7 @@ static void default_framebuffer_resize(GLFWwindow *window, int width, int height
 	glViewport(0, 0, width, height);
 }
 
-void ngin_end_frame(GLFWwindow *window) {
-	glfwSwapBuffers(window);
-	glfwPollEvents();
-}
-
+// static void init_default_
 GLFWwindow *ngin_init(i32 window_width, i32 window_height) {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -40,6 +36,11 @@ GLFWwindow *ngin_init(i32 window_width, i32 window_height) {
 	glfwSetFramebufferSizeCallback(window, default_framebuffer_resize);
 
 	return window;
+}
+
+void ngin_end_frame(GLFWwindow *window) {
+	glfwSwapBuffers(window);
+	glfwPollEvents();
 }
 
 void ngin_destroy(void) {

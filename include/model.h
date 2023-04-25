@@ -10,14 +10,14 @@ typedef struct {
 	u32 num_indices;
 
 	u32 vertex_array;
-} Shape;
+} Mesh;
 
 /// Creates a shape with a vertex buffer, index buffer and array object  
 /// 
 /// You need to set the shape of the vertex array after this using `BufferSchema`
-Shape create_model(void *vertices, u32 vertices_size, u32 *indices, u32 num_indices);
+Mesh create_mesh(void *vertices, u32 vertices_size, u32 *indices, u32 num_indices);
 
 /// Draws the given model
 ///
 /// WARNING: The model's vertex array stays bound after this call
-void draw_model(Shape model);
+void draw_mesh(Mesh mesh);
